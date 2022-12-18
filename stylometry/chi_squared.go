@@ -42,12 +42,7 @@ func ChiSquared(txt1, txt2 string) float64 {
 	return chiSquare
 }
 
-func mostCommonWords(words []string, topCommon int) []pair {
-	freq := make(map[string]int)
-	for _, word := range words {
-		freq[word]++
-	}
-
+func mostCommonWordsByFreqMap(freq map[string]int, topCommon int) []pair {
 	pairs := make([]pair, 0, len(freq))
 	for word, count := range freq {
 		pairs = append(pairs, pair{word, count})
@@ -60,6 +55,18 @@ func mostCommonWords(words []string, topCommon int) []pair {
 	for i := 0; i < topCommon && i < len(pairs); i++ {
 		mostCommon = append(mostCommon, pairs[i])
 	}
+
+	return mostCommon
+}
+
+func mostCommonWords(words []string, topCommon int) []pair {
+	freq := make(map[string]int)
+	for _, word := range words {
+		freq[word]++
+	}
+
+	mostCommon := mostCommonWordsByFreqMap(freq, topCommon)
+
 	return mostCommon
 }
 
