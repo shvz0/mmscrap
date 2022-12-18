@@ -19,9 +19,12 @@ func Serve() {
 	initServer()
 	mux := http.NewServeMux()
 
-	fs := http.FileServer(http.Dir("./public"))
-	mux.Handle("/", fs)
+	fileServer := http.FileServer(http.Dir("./public"))
+
+	mux.Handle("/public/", http.StripPrefix("/public", fileServer))
+
 	mux.Handle("/home", MainPageHandler{})
+	mux.Handle("/", MainPageHandler{})
 
 	log.Print("Listening...")
 	err := http.ListenAndServe(":3000", mux)

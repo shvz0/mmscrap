@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"html/template"
 	"io"
 	"log"
@@ -17,28 +16,24 @@ type MainPageHandler struct {
 
 func (h MainPageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	f, err := os.OpenFile("./templates/index.html", os.O_RDONLY, 0777)
-
 	var all []mmscrappers.Article
-	var buf strings.Builder
-	_, err = io.Copy(&buf, f)
 
 	alldb := Db.Order("date desc").Find(&all)
 	rows, err := alldb.Rows()
 
 	if err != nil {
-		fmt.Println(err)
+		log.Printf("DB error: %v", err)
+		responseServerError(w, err)
+		return
 	}
 
 	rows.Close()
 
-	check := func(err error) {
-		if err != nil {
-			log.Fatal(err)
-		}
+	if err != nil {
+		log.Println(err)
+		responseServerError(w, err)
+		return
 	}
-	t, err := template.New("webpage").Parse(string(buf.String()))
-	check(err)
 
 	data := struct {
 		Title      string
@@ -50,6 +45,52 @@ func (h MainPageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Items:      all,
 	}
 
+	t, err := getTemplate("index.html")
+
+	if err != nil {
+		log.Println(err)
+		responseServerError(w, err)
+		return
+	}
+
 	err = t.Execute(w, data)
-	check(err)
+
+	if err != nil {
+		log.Println(err)
+		responseServerError(w, err)
+		return
+	}
+}
+
+func responseServerError(w http.ResponseWriter, err error) {
+	w.WriteHeader(http.StatusInternalServerError)
+	t, _ := getTemplate("errors/500.html")
+	t.Execute(w, err)
+}
+
+func getTemplate(templatePath string) (*template.Template, error) {
+	var buf strings.Builder
+
+	f, err := os.OpenFile("./templates/"+templatePath, os.O_RDONLY, 0777)
+
+	if err != nil {
+		log.Printf("IO error: %v", err)
+		return nil, err
+	}
+
+	_, err = io.Copy(&buf, f)
+
+	if err != nil {
+		log.Printf("IO error: %v", err)
+		return nil, err
+	}
+
+	t, err := template.New("webpage").Parse(string(buf.String()))
+
+	if err != nil {
+		log.Printf("IO error: %v", err)
+		return nil, err
+	}
+
+	return t, nil
 }
