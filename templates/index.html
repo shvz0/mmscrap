@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{.Title}}</title>
+    <link href="assets/css/app.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="main">
+
+
+        <div class="article-list">
+            {{range .Items}}
+            <a href="{{ .Url }}" class="article-link">
+                <div class="{{ .MassMediaName }} article mm-icon">
+                    <span class="date">{{ .Date.Format "2006.01.02 15:04" }}</span>
+                    {{ .Title }}
+                </div>
+            </a>
+            {{else}}
+            <div>
+                <strong>no rows</strong>
+            </div>
+            {{end}}
+        </div>
+    </div>
+</body>
+
+</html>

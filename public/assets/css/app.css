@@ -1,0 +1,57 @@
+html, body{
+    height: 100%;
+    font-family: Roboto, sans-serif;
+}
+
+.main {
+    margin: auto;
+    display: grid;
+    grid-template-columns: 25% 50% 25%;
+}
+
+.article-list{
+    grid-column: 2/ span 1;
+}
+
+.article:hover {
+    background-color: rgb(172, 172, 250);
+}
+
+.article {
+    background-color: rgb(228, 228, 250);
+    flex: 1;
+    justify-content: center;
+    padding: .2rem;
+    margin: .2rem;
+    border-radius: 10px;
+}
+
+.article>.date {
+    font-size: .8rem;
+    color: #3c3c3c;
+}
+
+.article-link {
+    text-decoration: none;
+    color: black;
+
+}
+
+.mm-icon::before {
+    background-repeat: no-repeat;
+    width: 20px;
+    height: 20px;
+    float: left;
+    content: "";
+    display: block;
+    background-size: 63%;
+    margin-top: 3px;
+}
+
+.kaktus_media::before {
+    background-image: url("../icons/kaktus.ico");
+}
+
+.news_24kg::before {
+    background-image: url("../icons/24kg.ico");
+}
