@@ -2,8 +2,9 @@ package server
 
 import (
 	"log"
-	"mmscrap/db"
 	"net/http"
+
+	"github.com/shvz0/mmscrap/db"
 
 	"gorm.io/gorm"
 )

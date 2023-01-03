@@ -5,10 +5,11 @@ import (
 	"html/template"
 	"io"
 	"log"
-	"mmscrap/mmscrappers"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/shvz0/mmscrap/mmscrappers"
 )
 
 type MainPageHandler struct {

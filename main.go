@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
-	"mmscrappers/db"
-	"mmscrappers/mmscrappers"
-	"mmscrappers/server"
+
+	"github.com/shvz0/mmscrap/db"
+	"github.com/shvz0/mmscrap/mmscrappers"
+	"github.com/shvz0/mmscrap/server"
 )
 
 func main() {
