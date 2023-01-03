@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/antchfx/htmlquery v1.2.5
+	github.com/jdkato/prose v1.2.1
 	golang.org/x/net v0.2.0
 	gorm.io/driver/postgres v1.4.5
 	gorm.io/gorm v1.24.1
@@ -20,7 +21,6 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
 	github.com/jackc/pgtype v1.12.0 // indirect
 	github.com/jackc/pgx/v4 v4.17.2 // indirect
-	github.com/jdkato/prose v1.2.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	golang.org/x/crypto v0.2.0 // indirect
