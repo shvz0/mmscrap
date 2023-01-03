@@ -3,7 +3,8 @@ package db
 import "fmt"
 
 func Migrate() {
+	conn := Connect()
 	fmt.Println("Migrating...")
-	Db.AutoMigrate(&Article{})
+	conn.AutoMigrate(&Article{})
 	fmt.Println("Successfuly migrated...")
 }

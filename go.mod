@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/antchfx/htmlquery v1.2.5
 	github.com/jdkato/prose v1.2.1
+	github.com/joho/godotenv v1.4.0
 	golang.org/x/net v0.2.0
 	gorm.io/driver/postgres v1.4.5
 	gorm.io/gorm v1.24.1

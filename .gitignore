@@ -15,6 +15,7 @@ dist-ssr
 vendor/
 data/
 .data/
+.env
 
 # Editor directories and files
 .vscode/*

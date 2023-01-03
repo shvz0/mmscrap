@@ -9,11 +9,10 @@ import (
 	"gorm.io/gorm"
 )
 
-var dsn string
 var Db *gorm.DB
 
 func initServer() {
-	Db = db.Db
+	Db = db.Connect()
 }
 
 func Serve() {
