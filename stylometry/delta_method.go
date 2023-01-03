@@ -4,8 +4,8 @@ import (
 	"math"
 )
 
-func DeltaMethod(refCorpus []*corpus, unknownText string) []deltaAuthor {
-	var result []deltaAuthor
+func DeltaMethod(refCorpus []*corpus, unknownText string) map[string]float64 {
+	result := make(map[string]float64)
 	wordsByAuthor := make(map[string][]string)
 
 	allWords := []string{}
@@ -111,7 +111,7 @@ func DeltaMethod(refCorpus []*corpus, unknownText string) []deltaAuthor {
 			delta += math.Abs(cZscore[v.word] - zscoresByAuthor[a][v.word])
 		}
 		delta /= float64(len(mostCommonWords))
-		result = append(result, deltaAuthor{Author: a, Delta: delta})
+		result[a] = delta
 	}
 
 	return result
