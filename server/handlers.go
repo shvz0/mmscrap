@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"io"
 	"log"
-	"mmscrappers/mmscrappers"
+	"mmscrap/mmscrappers"
 	"net/http"
 	"os"
 	"strings"

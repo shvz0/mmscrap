@@ -2,19 +2,7 @@ package stylometry
 
 import (
 	"math"
-	"regexp"
-	"strings"
-
-	"github.com/jdkato/prose/tokenize"
 )
-
-func lengthDistribution(words []string) map[int]int {
-	distr := make(map[int]int)
-	for _, w := range words {
-		distr[len(w)]++
-	}
-	return distr
-}
 
 func Mendenhall(txt1, txt2 string) float64 {
 	k := 0.0
@@ -51,39 +39,4 @@ func Mendenhall(txt1, txt2 string) float64 {
 	}
 
 	return k
-}
-
-func wordsByText(txt string) []string {
-	tknz := tokenize.NewTreebankWordTokenizer()
-	words := tknz.Tokenize(txt)
-	formatWords(words)
-	words = excludePunctuation(words)
-	return words
-}
-
-func excludePunctuation(words []string) []string {
-	var res []string
-
-	re := regexp.MustCompile("[^\\s,.;\\/-=_+?!\"']+")
-
-	for i := 0; i < len(words); i++ {
-		if re.Match([]byte(words[i])) {
-			res = append(res, words[i])
-		}
-	}
-
-	return res
-}
-
-func trimWords(words []string) {
-	for i := 0; i < len(words); i++ {
-		words[i] = strings.Trim(words[i], " \n\t\r\x00")
-	}
-}
-
-func formatWords(words []string) {
-	for i := 0; i < len(words); i++ {
-		words[i] = strings.Trim(words[i], " \n\t\r\x00")
-		words[i] = strings.ToLower(words[i])
-	}
 }

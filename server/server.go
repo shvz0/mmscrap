@@ -2,7 +2,7 @@ package server
 
 import (
 	"log"
-	"mmscrappers/db"
+	"mmscrap/db"
 	"net/http"
 
 	"gorm.io/gorm"

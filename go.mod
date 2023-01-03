@@ -1,4 +1,4 @@
-module mmscrappers
+module mmscrap
 
 go 1.18
 
