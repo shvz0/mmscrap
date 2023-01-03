@@ -14,8 +14,7 @@ services:
       - 127.0.0.1:5432:5432
 
     volumes:
-      - ./data/postgresql:/var/lib/postgresql/data
-      - ./db:/home/db
+      - ./.data/postgresql:/var/lib/postgresql/data
     networks:
       - network
 
