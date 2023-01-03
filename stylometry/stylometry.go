@@ -15,11 +15,6 @@ type corpus struct {
 	MostCommon []pair
 }
 
-type deltaAuthor struct {
-	Author string
-	Delta  float64
-}
-
 func NewCorpus(text, author string) corpus {
 	words := wordsByText(text)
 
