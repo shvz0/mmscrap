@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"html/template"
 	"io"
 	"log"
@@ -9,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/shvz0/mmscrap/mmscrappers"
+	"github.com/shvz0/mmscrap/stylometry"
 )
 
 type MainPageHandler struct {
@@ -60,6 +62,26 @@ func (h MainPageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		responseServerError(w, err)
 		return
 	}
+}
+
+type StylometryDeltaMethod struct{}
+
+func (h StylometryDeltaMethod) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	var all []mmscrappers.Article
+
+	Db.Order("date desc").Find(&all)
+
+	var corpuses []*stylometry.Corpus
+
+	for _, v := range all {
+		corpus := stylometry.NewCorpus(v.Text, v.Author)
+		corpuses = append(corpuses, &corpus)
+	}
+
+	mapa := stylometry.DeltaMethod(corpuses, ``)
+
+	fmt.Println(mapa)
 }
 
 func responseServerError(w http.ResponseWriter, err error) {

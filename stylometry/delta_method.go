@@ -4,7 +4,7 @@ import (
 	"math"
 )
 
-func DeltaMethod(refCorpus []*corpus, unknownText string) map[string]float64 {
+func DeltaMethod(refCorpus []*Corpus, unknownText string) map[string]float64 {
 	result := make(map[string]float64)
 	wordsByAuthor := make(map[string][]string)
 
@@ -14,10 +14,10 @@ func DeltaMethod(refCorpus []*corpus, unknownText string) map[string]float64 {
 		allWords = append(allWords, c.Corpus...)
 	}
 
-	corpusByAuthor := make(map[string]*corpus)
+	corpusByAuthor := make(map[string]*Corpus)
 
 	for a, w := range wordsByAuthor {
-		c := corpus{Author: a, Corpus: w}
+		c := Corpus{Author: a, Corpus: w}
 		c.freq()
 		corpusByAuthor[a] = &c
 	}

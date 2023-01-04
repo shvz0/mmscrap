@@ -8,24 +8,24 @@ import (
 	"github.com/jdkato/prose/tokenize"
 )
 
-type corpus struct {
+type Corpus struct {
 	Author     string
 	Corpus     []string
 	Freq       map[string]int
 	MostCommon []pair
 }
 
-func NewCorpus(text, author string) corpus {
+func NewCorpus(text, author string) Corpus {
 	words := wordsByText(text)
 
-	corpus := corpus{Author: author, Corpus: words}
+	corpus := Corpus{Author: author, Corpus: words}
 	corpus.Freq = wordsFreq(corpus.Corpus)
 	corpus.MostCommon = mostCommonWordsByFreqMap(corpus.Freq, 1000)
 
 	return corpus
 }
 
-func (c *corpus) freq() map[string]int {
+func (c *Corpus) freq() map[string]int {
 	freq := wordsFreq(c.Corpus)
 	c.Freq = freq
 	return c.Freq

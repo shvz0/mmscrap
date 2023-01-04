@@ -26,6 +26,8 @@ func Serve() {
 	mux.Handle("/home", MainPageHandler{})
 	mux.Handle("/", MainPageHandler{})
 
+	mux.Handle("/delta", StylometryDeltaMethod{})
+
 	log.Print("Listening...")
 	err := http.ListenAndServe(":3000", mux)
 
