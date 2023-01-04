@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/antchfx/htmlquery"
+	"golang.org/x/net/html"
 )
 
 type Kaktus struct {
@@ -145,6 +146,20 @@ func (k Kaktus) parseArticleListPage(pageTxt io.Reader) (result []ArticleListIte
 	return result, nil
 }
 
+func (k Kaktus) getAuthor(docN *html.Node) (string, error) {
+	authorN, err := htmlquery.Query(docN, "//a[contains(@class, 'Article--author')]")
+	if err != nil {
+		return "", err
+	}
+
+	author := getNodeTxt(authorN)
+
+	author = strings.ToLower(author)
+	author = strings.Trim(author, " \n\t\r\x00")
+
+	return author, nil
+}
+
 func (k Kaktus) articlePageParse(ali ArticleListItem, ch chan Article) (*Article, error) {
 
 	articlePage, err := GetPage(ali.Url, k.Headers)
@@ -171,10 +186,16 @@ func (k Kaktus) articlePageParse(ali ArticleListItem, ch chan Article) (*Article
 		collectText(tn, &txtBuf)
 	}
 
+	author, err := k.getAuthor(doc)
+
+	if err != nil {
+		author = ""
+	}
+
 	art := Article{
 		Title:         ali.Title,
 		Url:           ali.Url,
-		Author:        "",
+		Author:        author,
 		Text:          txtBuf.String(),
 		Date:          ali.Date,
 		MassMediaName: "kaktus_media",
@@ -185,14 +206,6 @@ func (k Kaktus) articlePageParse(ali ArticleListItem, ch chan Article) (*Article
 
 	k.wg.Done()
 
-	return &Article{
-		Title:         ali.Title,
-		Url:           ali.Url,
-		Author:        "",
-		Text:          txtBuf.String(),
-		Date:          ali.Date,
-		MassMediaName: "KAKTUS MEDIA",
-		ImgUrl:        ali.ImageUrl,
-	}, nil
+	return &art, nil
 
 }

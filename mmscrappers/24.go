@@ -146,6 +146,7 @@ func (n News24) articlePageParse(i ArticleListItem, ch chan Article) (Article, e
 	a.Title = i.Title
 	a.MassMediaName = "news_24kg"
 	a.Date, err = n.articlePageParseDate(doc)
+	a.Author = n.getAuthor(doc)
 
 	if err != nil {
 		return Article{}, err
@@ -156,6 +157,18 @@ func (n News24) articlePageParse(i ArticleListItem, ch chan Article) (Article, e
 	n.wg.Done()
 
 	return a, nil
+}
+
+func (n News24) getAuthor(docN *html.Node) string {
+
+	tn, _ := htmlquery.Query(docN, "//span[@itemprop='author']")
+
+	tStr := getNodeTxt(tn)
+
+	tStr = strings.ToLower(tStr)
+	tStr = strings.Trim(tStr, " \n\t\r\x00")
+
+	return tStr
 }
 
 func (n News24) articlePageParseDate(docN *html.Node) (time.Time, error) {
