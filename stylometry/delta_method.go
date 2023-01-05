@@ -2,10 +2,17 @@ package stylometry
 
 import (
 	"math"
+	"sort"
 )
 
-func DeltaMethod(refCorpus []*Corpus, unknownText string) map[string]float64 {
-	result := make(map[string]float64)
+type DeltaResult struct {
+	Author      string
+	Coefficient float64
+}
+
+func DeltaMethod(refCorpus []*Corpus, unknownText string) []DeltaResult {
+	var result []DeltaResult
+
 	wordsByAuthor := make(map[string][]string)
 
 	allWords := []string{}
@@ -111,8 +118,12 @@ func DeltaMethod(refCorpus []*Corpus, unknownText string) map[string]float64 {
 			delta += math.Abs(cZscore[v.word] - zscoresByAuthor[a][v.word])
 		}
 		delta /= float64(len(mostCommonWords))
-		result[a] = delta
+		result = append(result, DeltaResult{Author: a, Coefficient: delta})
 	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Coefficient < result[j].Coefficient
+	})
 
 	return result
 }

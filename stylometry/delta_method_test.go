@@ -10,11 +10,11 @@ func TestDeltaSameText(t *testing.T) {
 
 	k := DeltaMethod([]*Corpus{&c1, &c2}, "test test")
 
-	if k["a1"] != 0 {
+	if k[0].Coefficient != 0 {
 		t.Fatalf("Same text does not give minimal coefficient")
 	}
 
-	if k["a2"] < k["a1"] {
+	if k[1].Coefficient < k[0].Coefficient {
 		t.Fatalf("Same text coefficient is larger than different text")
 	}
 }

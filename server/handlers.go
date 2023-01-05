@@ -1,16 +1,18 @@
 package server
 
 import (
-	"fmt"
+	"encoding/json"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/shvz0/mmscrap/mmscrappers"
 	"github.com/shvz0/mmscrap/stylometry"
+	"gorm.io/gorm"
 )
 
 type MainPageHandler struct {
@@ -20,7 +22,7 @@ func (h MainPageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	var all []mmscrappers.Article
 
-	alldb := Db.Order("date desc").Find(&all)
+	alldb := Db.Scopes(Paginate(r)).Order("date desc").Find(&all)
 	rows, err := alldb.Rows()
 
 	if err != nil {
@@ -64,13 +66,34 @@ func (h MainPageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func Paginate(r *http.Request) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		q := r.URL.Query()
+		page, _ := strconv.Atoi(q.Get("page"))
+		if page == 0 {
+			page = 1
+		}
+
+		pageSize, _ := strconv.Atoi(q.Get("page_size"))
+		switch {
+		case pageSize > 100:
+			pageSize = 100
+		case pageSize <= 0:
+			pageSize = 10
+		}
+
+		offset := (page - 1) * pageSize
+		return db.Offset(offset).Limit(pageSize)
+	}
+}
+
 type StylometryDeltaMethod struct{}
 
 func (h StylometryDeltaMethod) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	var all []mmscrappers.Article
 
-	Db.Order("date desc").Find(&all)
+	Db.Find(&all)
 
 	var corpuses []*stylometry.Corpus
 
@@ -79,9 +102,29 @@ func (h StylometryDeltaMethod) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		corpuses = append(corpuses, &corpus)
 	}
 
-	mapa := stylometry.DeltaMethod(corpuses, ``)
+	txt := r.FormValue("text")
 
-	fmt.Println(mapa)
+	res := stylometry.DeltaMethod(corpuses, txt)
+
+	type payload struct {
+		Message string
+		Data    []stylometry.DeltaResult
+	}
+
+	p := payload{
+		Message: "ok",
+		Data:    res,
+	}
+
+	json, err := json.Marshal(p)
+
+	if err != nil {
+		log.Println(err)
+		responseServerError(w, err)
+		return
+	}
+
+	w.Write(json)
 }
 
 func responseServerError(w http.ResponseWriter, err error) {
