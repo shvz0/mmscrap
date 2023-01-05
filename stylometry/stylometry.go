@@ -78,10 +78,10 @@ func wordsByText(txt string) []string {
 func excludePunctuation(words []string) []string {
 	var res []string
 
-	re := regexp.MustCompile("[^\\s,.;\\/-=_+?!\"']+")
+	re := regexp.MustCompile("[^\\s,.;\\-=\\/ `_+?()!\"']+")
 
 	for i := 0; i < len(words); i++ {
-		if re.Match([]byte(words[i])) {
+		if re.Match([]byte(words[i])) && len(words[i]) != 0 {
 			res = append(res, words[i])
 		}
 	}
