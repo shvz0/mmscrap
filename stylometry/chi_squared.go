@@ -1,10 +1,5 @@
 package stylometry
 
-type pair struct {
-	word  string
-	count int
-}
-
 func ChiSquared(txt1, txt2 string) float64 {
 	chiSquare := 0.0
 

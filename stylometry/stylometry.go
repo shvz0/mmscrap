@@ -15,6 +15,11 @@ type Corpus struct {
 	MostCommon []pair
 }
 
+type pair struct {
+	word  string
+	count int
+}
+
 func NewCorpus(text, author string) Corpus {
 	words := wordsByText(text)
 
@@ -44,6 +49,10 @@ func mostCommonWordsByFreqMap(freq map[string]int, topCommon int) []pair {
 	for i := 0; i < topCommon && i < len(pairs); i++ {
 		mostCommon = append(mostCommon, pairs[i])
 	}
+
+	sort.Slice(mostCommon, func(i, j int) bool {
+		return mostCommon[i].count > mostCommon[j].count
+	})
 
 	return mostCommon
 }
@@ -78,7 +87,7 @@ func wordsByText(txt string) []string {
 func excludePunctuation(words []string) []string {
 	var res []string
 
-	re := regexp.MustCompile("[^\\s,.;\\-=\\/ `_+?()!\"']+")
+	re := regexp.MustCompile("[^\\s,.;\\-=\\/ —–`_+?()!\"']+")
 
 	for i := 0; i < len(words); i++ {
 		if re.Match([]byte(words[i])) && len(words[i]) != 0 {

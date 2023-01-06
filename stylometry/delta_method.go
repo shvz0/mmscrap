@@ -26,7 +26,11 @@ func DeltaMethod(refCorpus []*Corpus, unknownText string) []DeltaResult {
 	for a, w := range wordsByAuthor {
 		c := Corpus{Author: a, Corpus: w}
 		c.freq()
-		corpusByAuthor[a] = &c
+		if _, ok := corpusByAuthor[a]; !ok {
+			corpusByAuthor[a] = &c
+		} else {
+			corpusByAuthor[a].Corpus = append(corpusByAuthor[a].Corpus, c.Corpus...)
+		}
 	}
 
 	mostCommonWords := mostCommonWords(allWords, 1000)
@@ -90,8 +94,8 @@ func DeltaMethod(refCorpus []*Corpus, unknownText string) []DeltaResult {
 	}
 
 	compareCorpus := NewCorpus(unknownText, "")
-
 	compareCorpus.freq()
+
 	cOveral := float64(len(compareCorpus.Corpus))
 	compareFreqs := make(map[string]float64)
 
