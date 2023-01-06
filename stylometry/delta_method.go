@@ -13,25 +13,8 @@ type DeltaResult struct {
 func DeltaMethod(refCorpus []*Corpus, unknownText string) []DeltaResult {
 	var result []DeltaResult
 
-	wordsByAuthor := make(map[string][]string)
-
-	allWords := []string{}
-	for _, c := range refCorpus {
-		wordsByAuthor[c.Author] = append(wordsByAuthor[c.Author], c.Corpus...)
-		allWords = append(allWords, c.Corpus...)
-	}
-
-	corpusByAuthor := make(map[string]*Corpus)
-
-	for a, w := range wordsByAuthor {
-		c := Corpus{Author: a, Corpus: w}
-		c.freq()
-		if _, ok := corpusByAuthor[a]; !ok {
-			corpusByAuthor[a] = &c
-		} else {
-			corpusByAuthor[a].Corpus = append(corpusByAuthor[a].Corpus, c.Corpus...)
-		}
-	}
+	corpusByAuthor := aggregateCorporaByAuthors(refCorpus)
+	allWords := combineCorporaToCorpus(refCorpus)
 
 	mostCommonWords := mostCommonWords(allWords, 1000)
 
@@ -130,4 +113,34 @@ func DeltaMethod(refCorpus []*Corpus, unknownText string) []DeltaResult {
 	})
 
 	return result
+}
+
+func aggregateCorporaByAuthors(corpora []*Corpus) map[string]*Corpus {
+	wordsByAuthor := make(map[string][]string)
+
+	for _, c := range corpora {
+		wordsByAuthor[c.Author] = append(wordsByAuthor[c.Author], c.Corpus...)
+	}
+
+	corpusByAuthor := make(map[string]*Corpus)
+
+	for a, w := range wordsByAuthor {
+		c := Corpus{Author: a, Corpus: w}
+		c.freq()
+		if _, ok := corpusByAuthor[a]; !ok {
+			corpusByAuthor[a] = &c
+		} else {
+			corpusByAuthor[a].Corpus = append(corpusByAuthor[a].Corpus, c.Corpus...)
+		}
+	}
+
+	return corpusByAuthor
+}
+
+func combineCorporaToCorpus(corpora []*Corpus) []string {
+	var corpus []string
+	for _, v := range corpora {
+		corpus = append(corpus, v.Corpus...)
+	}
+	return corpus
 }
