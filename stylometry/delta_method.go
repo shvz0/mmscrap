@@ -1,6 +1,7 @@
 package stylometry
 
 import (
+	"fmt"
 	"math"
 	"sort"
 )
@@ -26,7 +27,10 @@ func DeltaMethod(refCorpus []*Corpus, unknownText string) []DeltaResult {
 	wordFreqByAuthor := make(map[string]map[string]float64)
 
 	for author, c := range corpusByAuthor {
-		overall := len(c.Corpus)
+		overall := float64(len(c.Corpus))
+		if overall == 0 {
+			continue
+		}
 		for _, v := range mostCommonWords {
 			if c.Freq == nil {
 				c.Freq = make(map[string]int)
@@ -35,7 +39,8 @@ func DeltaMethod(refCorpus []*Corpus, unknownText string) []DeltaResult {
 			if wordFreqByAuthor[author] == nil {
 				wordFreqByAuthor[author] = make(map[string]float64)
 			}
-			wordFreqByAuthor[author][v.word] = float64(presence) / float64(overall)
+
+			wordFreqByAuthor[author][v.word] = roundFloat(float64(presence)/overall, 5)
 		}
 	}
 
@@ -55,7 +60,7 @@ func DeltaMethod(refCorpus []*Corpus, unknownText string) []DeltaResult {
 
 	for _, v := range mostCommonWords {
 		if cPresence, ok := compareCorpus.Freq[v.word]; ok {
-			compareFreqs[v.word] = float64(cPresence) / cOveral
+			compareFreqs[v.word] = roundFloat(roundFloat(float64(cPresence), 5)/cOveral, 5)
 		} else {
 			compareFreqs[v.word] = 0
 		}
@@ -89,15 +94,23 @@ func corpusFeatures(mostCommonWords []pair, wordFreqByAuthor map[string]map[stri
 		for _, freqMap := range wordFreqByAuthor {
 			avg += freqMap[v.word]
 		}
-		avg /= float64(len(wordFreqByAuthor))
+
+		if len(wordFreqByAuthor) != 0 {
+			avg /= float64(len(wordFreqByAuthor))
+			avg = roundFloat(avg, 5)
+		}
 
 		stdev := 0.0
 		for _, freqMap := range wordFreqByAuthor {
 			diff := freqMap[v.word] - avg
 			stdev += diff * diff
+			stdev = roundFloat(stdev, 5)
 		}
-		stdev /= float64((len(wordFreqByAuthor) - 1))
-		stdev = math.Sqrt(stdev)
+
+		if len(wordFreqByAuthor)-1 != 0 {
+			stdev /= float64((len(wordFreqByAuthor) - 1))
+			stdev = roundFloat(math.Sqrt(stdev), 5)
+		}
 
 		corpusFeatures[v.word] = feature{Mean: avg, StdDev: stdev}
 	}
@@ -112,7 +125,10 @@ func zScore(mostCommonWords []pair, corpusFeatures map[string]feature, freqMap m
 		val := freqMap[v.word]
 		mean := corpusFeatures[v.word].Mean
 		stdDev := corpusFeatures[v.word].StdDev
-		cZscore[v.word] = (val - mean) / stdDev
+		if stdDev != 0 {
+			cZscore[v.word] = roundFloat((val-mean)/stdDev, 5)
+			fmt.Println(v.word, stdDev)
+		}
 	}
 
 	return cZscore
@@ -146,4 +162,14 @@ func combineCorporaToCorpus(corpora []*Corpus) []string {
 		corpus = append(corpus, v.Corpus...)
 	}
 	return corpus
+}
+
+func roundFloat(x float64, decimalPlaces int) float64 {
+	if decimalPlaces == 0 {
+		return math.Round(x)
+	}
+
+	p := float64(math.Pow10(decimalPlaces))
+
+	return math.Round(x*p) / p
 }
