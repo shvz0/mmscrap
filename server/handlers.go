@@ -87,89 +87,25 @@ func Paginate(r *http.Request) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-type StylometryDeltaMethod struct{}
+type DeltaHandler struct{}
 
-func (h StylometryDeltaMethod) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
-	var all []mmscrappers.Article
-
-	Db.Find(&all)
-
-	var corpuses []*stylometry.Corpus
-
-	for _, v := range all {
-		corpus := stylometry.NewCorpus(v.Text, v.Author)
-		corpuses = append(corpuses, &corpus)
-	}
-
-	txt := r.FormValue("text")
-
-	res := stylometry.DeltaMethod(corpuses, txt)
-
-	type payload struct {
-		Message string
-		Data    []stylometry.StylometryResult
-	}
-
-	p := payload{
-		Message: "ok",
-		Data:    res,
-	}
-
-	json, err := json.Marshal(p)
-
-	if err != nil {
-		log.Println(err)
-		responseServerError(w, err)
-		return
-	}
-
-	w.Write(json)
+func (h DeltaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	stylometryRequest(w, r, stylometry.DeltaType)
 }
 
-type MendenhallMethod struct{}
+type MendenhallHandler struct{}
 
-func (h MendenhallMethod) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
-	var all []mmscrappers.Article
-
-	Db.Find(&all)
-
-	var corpuses []*stylometry.Corpus
-
-	for _, v := range all {
-		corpus := stylometry.NewCorpus(v.Text, v.Author)
-		corpuses = append(corpuses, &corpus)
-	}
-
-	txt := r.FormValue("text")
-
-	res := stylometry.Mendenhall(corpuses, txt)
-
-	type payload struct {
-		Message string
-		Data    []stylometry.StylometryResult
-	}
-
-	p := payload{
-		Message: "ok",
-		Data:    res,
-	}
-
-	json, err := json.Marshal(p)
-
-	if err != nil {
-		log.Println(err)
-		responseServerError(w, err)
-		return
-	}
-
-	w.Write(json)
+func (h MendenhallHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	stylometryRequest(w, r, stylometry.MendenhallType)
 }
 
-type ChiSquredMethod struct{}
+type ChiSquredHandler struct{}
 
-func (h ChiSquredMethod) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h ChiSquredHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	stylometryRequest(w, r, stylometry.ChiSquaredType)
+}
+
+func stylometryRequest(w http.ResponseWriter, r *http.Request, t stylometry.StylometryType) {
 
 	var all []mmscrappers.Article
 
@@ -184,7 +120,16 @@ func (h ChiSquredMethod) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	txt := r.FormValue("text")
 
-	res := stylometry.ChiSquared(corpuses, txt)
+	var res []stylometry.StylometryResult
+
+	switch t {
+	case stylometry.DeltaType:
+		res = stylometry.DeltaMethod(corpuses, txt)
+	case stylometry.ChiSquaredType:
+		res = stylometry.ChiSquaredMethod(corpuses, txt)
+	case stylometry.MendenhallType:
+		res = stylometry.MendenhallMethod(corpuses, txt)
+	}
 
 	type payload struct {
 		Message string

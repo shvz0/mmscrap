@@ -26,9 +26,9 @@ func Serve() {
 	mux.Handle("/home", MainPageHandler{})
 	mux.Handle("/", MainPageHandler{})
 
-	mux.Handle("/delta", StylometryDeltaMethod{})
-	mux.Handle("/mendenhall", MendenhallMethod{})
-	mux.Handle("/chisquared", ChiSquredMethod{})
+	mux.Handle("/delta", DeltaHandler{})
+	mux.Handle("/mendenhall", MendenhallHandler{})
+	mux.Handle("/chisquared", ChiSquredHandler{})
 
 	log.Print("Listening...")
 	err := http.ListenAndServe(":3000", mux)

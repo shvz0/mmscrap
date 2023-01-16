@@ -2,7 +2,7 @@ package stylometry
 
 import "sort"
 
-func ChiSquared(refCorpora []*Corpus, unknownText string) []StylometryResult {
+func ChiSquaredMethod(refCorpora []*Corpus, unknownText string) []StylometryResult {
 	var result []StylometryResult
 
 	corpusByAuthor := aggregateCorporaByAuthors(refCorpora)

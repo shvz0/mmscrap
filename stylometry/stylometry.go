@@ -9,6 +9,14 @@ import (
 	"github.com/jdkato/prose/tokenize"
 )
 
+type StylometryType int64
+
+const (
+	DeltaType      StylometryType = 0
+	MendenhallType                = 1
+	ChiSquaredType                = 2
+)
+
 type Corpus struct {
 	Author     string
 	Corpus     []string

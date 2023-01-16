@@ -5,7 +5,7 @@ import (
 	"sort"
 )
 
-func Mendenhall(refCorpora []*Corpus, unknownText string) []StylometryResult {
+func MendenhallMethod(refCorpora []*Corpus, unknownText string) []StylometryResult {
 	var result []StylometryResult
 
 	corpusByAuthor := aggregateCorporaByAuthors(refCorpora)
