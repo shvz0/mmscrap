@@ -108,7 +108,87 @@ func (h StylometryDeltaMethod) ServeHTTP(w http.ResponseWriter, r *http.Request)
 
 	type payload struct {
 		Message string
-		Data    []stylometry.DeltaResult
+		Data    []stylometry.StylometryResult
+	}
+
+	p := payload{
+		Message: "ok",
+		Data:    res,
+	}
+
+	json, err := json.Marshal(p)
+
+	if err != nil {
+		log.Println(err)
+		responseServerError(w, err)
+		return
+	}
+
+	w.Write(json)
+}
+
+type MendenhallMethod struct{}
+
+func (h MendenhallMethod) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	var all []mmscrappers.Article
+
+	Db.Find(&all)
+
+	var corpuses []*stylometry.Corpus
+
+	for _, v := range all {
+		corpus := stylometry.NewCorpus(v.Text, v.Author)
+		corpuses = append(corpuses, &corpus)
+	}
+
+	txt := r.FormValue("text")
+
+	res := stylometry.Mendenhall(corpuses, txt)
+
+	type payload struct {
+		Message string
+		Data    []stylometry.StylometryResult
+	}
+
+	p := payload{
+		Message: "ok",
+		Data:    res,
+	}
+
+	json, err := json.Marshal(p)
+
+	if err != nil {
+		log.Println(err)
+		responseServerError(w, err)
+		return
+	}
+
+	w.Write(json)
+}
+
+type ChiSquredMethod struct{}
+
+func (h ChiSquredMethod) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	var all []mmscrappers.Article
+
+	Db.Find(&all)
+
+	var corpuses []*stylometry.Corpus
+
+	for _, v := range all {
+		corpus := stylometry.NewCorpus(v.Text, v.Author)
+		corpuses = append(corpuses, &corpus)
+	}
+
+	txt := r.FormValue("text")
+
+	res := stylometry.ChiSquared(corpuses, txt)
+
+	type payload struct {
+		Message string
+		Data    []stylometry.StylometryResult
 	}
 
 	p := payload{

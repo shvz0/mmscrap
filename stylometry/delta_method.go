@@ -5,7 +5,7 @@ import (
 	"sort"
 )
 
-type DeltaResult struct {
+type StylometryResult struct {
 	Author      string
 	Coefficient float64
 }
@@ -15,8 +15,8 @@ type feature struct {
 	StdDev float64
 }
 
-func DeltaMethod(refCorpus []*Corpus, unknownText string) []DeltaResult {
-	var result []DeltaResult
+func DeltaMethod(refCorpus []*Corpus, unknownText string) []StylometryResult {
+	var result []StylometryResult
 
 	corpusByAuthor := aggregateCorporaByAuthors(refCorpus)
 	allWords := combineCorporaToCorpus(refCorpus)
@@ -73,7 +73,7 @@ func DeltaMethod(refCorpus []*Corpus, unknownText string) []DeltaResult {
 			delta += math.Abs(cZscore[v.word] - zscoresByAuthor[a][v.word])
 		}
 		delta /= float64(len(mostCommonWords))
-		result = append(result, DeltaResult{Author: a, Coefficient: delta})
+		result = append(result, StylometryResult{Author: a, Coefficient: delta})
 	}
 
 	sort.Slice(result, func(i, j int) bool {

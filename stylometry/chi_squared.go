@@ -1,18 +1,33 @@
 package stylometry
 
-func ChiSquared(txt1, txt2 string) float64 {
+import "sort"
+
+func ChiSquared(refCorpora []*Corpus, unknownText string) []StylometryResult {
+	var result []StylometryResult
+
+	corpusByAuthor := aggregateCorporaByAuthors(refCorpora)
+	compareCorpus := NewCorpus(unknownText, "")
+
+	for a, c := range corpusByAuthor {
+		chiSquared := ChiSquaredCompareCorpora(*c, compareCorpus)
+		result = append(result, StylometryResult{Author: a, Coefficient: chiSquared})
+	}
+
+	sort.Slice(result, func(i, j int) bool { return result[i].Coefficient < result[j].Coefficient })
+
+	return result
+}
+
+func ChiSquaredCompareCorpora(c1, c2 Corpus) float64 {
 	chiSquare := 0.0
 
-	words1 := wordsByText(txt1)
-	words2 := wordsByText(txt2)
-
-	commonWords := append(words1, words2...)
+	commonWords := append(c1.Corpus, c2.Corpus...)
 
 	mcWords := mostCommonWords(commonWords, 1000)
 
-	auShare := float64(len(words1)) / float64(len(commonWords))
+	auShare := float64(len(c1.Corpus)) / float64(len(commonWords))
 
-	words1Freq := wordsFreq(words1)
+	words1Freq := c1.freq()
 	commonFreq := wordsFreq(commonWords)
 
 	for _, w := range mcWords {

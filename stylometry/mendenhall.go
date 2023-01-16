@@ -2,19 +2,33 @@ package stylometry
 
 import (
 	"math"
+	"sort"
 )
 
-func Mendenhall(txt1, txt2 string) float64 {
+func Mendenhall(refCorpora []*Corpus, unknownText string) []StylometryResult {
+	var result []StylometryResult
+
+	corpusByAuthor := aggregateCorporaByAuthors(refCorpora)
+	compareCorpus := NewCorpus(unknownText, "")
+
+	for a, c := range corpusByAuthor {
+		mendenhallCoeff := MendenhallCompareCorpora(*c, compareCorpus)
+		result = append(result, StylometryResult{Author: a, Coefficient: mendenhallCoeff})
+	}
+
+	sort.Slice(result, func(i, j int) bool { return result[i].Coefficient < result[j].Coefficient })
+
+	return result
+}
+
+func MendenhallCompareCorpora(c1, c2 Corpus) float64 {
 	k := 0.0
 
-	words1 := wordsByText(txt1)
-	words2 := wordsByText(txt2)
+	totalwords1 := len(c1.Corpus)
+	totalwords2 := len(c2.Corpus)
 
-	totalwords1 := len(words1)
-	totalwords2 := len(words2)
-
-	txt1LDistr := lengthDistribution(words1)
-	txt2LDistr := lengthDistribution(words2)
+	txt1LDistr := lengthDistribution(c1.Corpus)
+	txt2LDistr := lengthDistribution(c2.Corpus)
 
 	for length := 1; length < 100; length++ {
 		_, ok1 := txt1LDistr[length]
