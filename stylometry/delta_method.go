@@ -10,6 +10,11 @@ type DeltaResult struct {
 	Coefficient float64
 }
 
+type feature struct {
+	Mean   float64
+	StdDev float64
+}
+
 func DeltaMethod(refCorpus []*Corpus, unknownText string) []DeltaResult {
 	var result []DeltaResult
 
@@ -34,46 +39,12 @@ func DeltaMethod(refCorpus []*Corpus, unknownText string) []DeltaResult {
 		}
 	}
 
-	type attributes struct {
-		mean   float64
-		stdDev float64
-	}
-
-	corpusFeatures := make(map[string]attributes)
-
-	for _, v := range mostCommonWords {
-		corpusFeatures[v.word] = attributes{}
-		avg := 0.0
-
-		for _, freqMap := range wordFreqByAuthor {
-			avg += freqMap[v.word]
-		}
-		avg /= float64(len(wordFreqByAuthor))
-
-		stdev := 0.0
-		for _, freqMap := range wordFreqByAuthor {
-			diff := freqMap[v.word] - avg
-			stdev += diff * diff
-		}
-		stdev /= float64((len(wordFreqByAuthor) - 1))
-		stdev = math.Sqrt(stdev)
-
-		corpusFeatures[v.word] = attributes{mean: avg, stdDev: stdev}
-	}
+	corpusFeatures := corpusFeatures(mostCommonWords, wordFreqByAuthor)
 
 	zscoresByAuthor := map[string]map[string]float64{}
 
 	for a, freqMap := range wordFreqByAuthor {
-		for _, v := range mostCommonWords {
-			val := freqMap[v.word]
-			mean := corpusFeatures[v.word].mean
-			stdDev := corpusFeatures[v.word].stdDev
-
-			if zscoresByAuthor[a] == nil {
-				zscoresByAuthor[a] = make(map[string]float64)
-			}
-			zscoresByAuthor[a][v.word] = (val - mean) / stdDev
-		}
+		zscoresByAuthor[a] = zScore(mostCommonWords, corpusFeatures, freqMap)
 	}
 
 	compareCorpus := NewCorpus(unknownText, "")
@@ -90,14 +61,7 @@ func DeltaMethod(refCorpus []*Corpus, unknownText string) []DeltaResult {
 		}
 	}
 
-	cZscore := make(map[string]float64)
-
-	for _, v := range mostCommonWords {
-		val := compareFreqs[v.word]
-		mean := corpusFeatures[v.word].mean
-		stdDev := corpusFeatures[v.word].stdDev
-		cZscore[v.word] = (val - mean) / stdDev
-	}
+	cZscore := zScore(mostCommonWords, corpusFeatures, compareFreqs)
 
 	for a := range wordFreqByAuthor {
 		delta := 0.0
@@ -113,6 +77,45 @@ func DeltaMethod(refCorpus []*Corpus, unknownText string) []DeltaResult {
 	})
 
 	return result
+}
+
+func corpusFeatures(mostCommonWords []pair, wordFreqByAuthor map[string]map[string]float64) map[string]feature {
+	corpusFeatures := make(map[string]feature)
+
+	for _, v := range mostCommonWords {
+		corpusFeatures[v.word] = feature{}
+		avg := 0.0
+
+		for _, freqMap := range wordFreqByAuthor {
+			avg += freqMap[v.word]
+		}
+		avg /= float64(len(wordFreqByAuthor))
+
+		stdev := 0.0
+		for _, freqMap := range wordFreqByAuthor {
+			diff := freqMap[v.word] - avg
+			stdev += diff * diff
+		}
+		stdev /= float64((len(wordFreqByAuthor) - 1))
+		stdev = math.Sqrt(stdev)
+
+		corpusFeatures[v.word] = feature{Mean: avg, StdDev: stdev}
+	}
+
+	return corpusFeatures
+}
+
+func zScore(mostCommonWords []pair, corpusFeatures map[string]feature, freqMap map[string]float64) map[string]float64 {
+	cZscore := make(map[string]float64)
+
+	for _, v := range mostCommonWords {
+		val := freqMap[v.word]
+		mean := corpusFeatures[v.word].Mean
+		stdDev := corpusFeatures[v.word].StdDev
+		cZscore[v.word] = (val - mean) / stdDev
+	}
+
+	return cZscore
 }
 
 func aggregateCorporaByAuthors(corpora []*Corpus) map[string]*Corpus {
