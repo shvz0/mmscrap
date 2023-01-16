@@ -24,4 +24,9 @@ go build main.go
 2. Parse todays articles using flag **--parse**
 3. Migrate DB using flag **--migrate**
 ## API
-* POST /delta - calculate delta from all authors in DB. Body params: **text**
+* POST /delta - calculate delta coefficient from all authors in DB. Body params: **text**.
+Most accurate method 
+* POST /chisquared - calculate chi squared coefficent from all authors in DB. Body params: **text**.
+In the main less accurate than delta method
+* POST /mendenhall - calculate Mendenhall coefficient (using word length distribution) from all authors in DB. Body params: **text**.
+Simple, old and inaccurate
